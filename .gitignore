@@ -162,3 +162,4 @@ cython_debug/
 #.idea/
 csd_venv
 ATLAS_Dione_ObjectDetection
+atlas_dione_objectdetection.tar.gz
