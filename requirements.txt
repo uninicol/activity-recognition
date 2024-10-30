@@ -1,0 +1,6 @@
+transformers==4.46.1
+pytorch-lightning==2.4.0
+pycocotools==2.0.8
+pillow==11.0.0
+numpy==1.26.4
+tensorboard==2.18.0
