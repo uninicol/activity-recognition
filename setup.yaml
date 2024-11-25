@@ -1,0 +1,6 @@
+train: ../dataset/train/images
+val: ../dataset/val/images
+test: ../dataset/test/
+
+nc: 2
+names: ['RightTool','LeftTool']

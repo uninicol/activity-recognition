@@ -165,3 +165,5 @@ csd_env
 ATLAS_Dione_ObjectDetection
 atlas_dione_objectdetection.tar.gz
 dataset_coco_format.json
+dataset/
+runs/
