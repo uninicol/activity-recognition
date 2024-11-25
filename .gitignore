@@ -167,3 +167,5 @@ atlas_dione_objectdetection.tar.gz
 dataset_coco_format.json
 dataset/
 runs/
+
+yolo*.pt
