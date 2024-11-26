@@ -3,4 +3,4 @@ val: C:\\Users\\Informatica_UNICAM\\Desktop\\activity-recognition\\dataset\\val\
 test: C:\\Users\\Informatica_UNICAM\\Desktop\\activity-recognition\\dataset\\test
 
 nc: 2
-names: ['RightTool','LeftTool']
+names: ['LeftTool','RightTool']
