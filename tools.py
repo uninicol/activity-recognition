@@ -3,8 +3,6 @@ import sys
 import time
 from typing import Optional
 from ultralytics import YOLO
-import streamlit as st
-from dotenv import find_dotenv, load_dotenv
 
 from langchain.llms import Ollama
 from langchain.schema.messages import HumanMessage
@@ -12,12 +10,8 @@ from langchain.tools import BaseTool
 from loguru import logger
 from PIL import Image
 
-_ = load_dotenv(find_dotenv())
-
 logger.remove()
 logger.add(sys.stderr, level="INFO")
-
-st.set_page_config(layout="wide")
 
 class PromptGeneratorTool(BaseTool):
     name: str = "Image object detection prompt generator tool"

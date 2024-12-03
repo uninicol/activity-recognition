@@ -13,6 +13,7 @@ from loguru import logger
 
 from tools import ObjectDetectionTool, PromptGeneratorTool
 
+st.set_page_config(layout="wide")
 llm = Ollama(model="llava:7b")
 
 class App:
