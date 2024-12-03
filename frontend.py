@@ -1,22 +1,24 @@
+import base64
 import os
 from ultralytics import YOLO
 import streamlit as st
 import torch
 from langchain.agents import initialize_agent
 from langchain.agents.agent import  AgentType
+from langchain_core.messages import HumanMessage
 
-from langchain.llms import Ollama
+from langchain_community.llms import Ollama
 from langchain.memory import ConversationBufferMemory
 from loguru import logger
 
 from tools import ObjectDetectionTool, PromptGeneratorTool
 
+llm = Ollama(model="llava:7b")
 
 class App:
     def __init__(self, device) -> None:
 
         # if "agent" not in st.session_state:
-        llm = Ollama(model="llama3.2:3b")
         self._agent = initialize_agent(
             agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
             tools=[
@@ -56,28 +58,48 @@ class App:
             logger.error(e)
 
     def run(self) -> None:
-        llm = Ollama(model="llama3.2:3b")
-        st.set_page_config(page_title="LLaMA Chat", layout="wide")
-        st.title("Chat with LLaMA")
-        with st.form("chat_form"):
-            user_input = st.text_area("Enter your message:", height=100)
-            submit_button = st.form_submit_button(label="Send")
-        if submit_button and user_input.strip():
-            with st.spinner("LLaMA is processing..."):
-                # Invia l'input a LLaMA e ottieni la risposta
-                try:
-                    response = llm(user_input)  # Invio della richiesta
-                    st.success("Response received!")
-                    st.text_area("LLaMA's Response:", response, height=200, disabled=True)
-                except Exception as e:
-                    st.error(f"An error occurred: {e}")
-        st.title("Image Auto Annotation")
-        self._upload_image()
-        st.sidebar.markdown("---")
-        st.sidebar.slider(
-            "Image quality", min_value=0, max_value=100, value=70, key="output_quality"
-        )
+        st.title("Chat with Image Support")
+        if "chat" not in st.session_state:
+            client = llm
+            st.session_state.chat = client
 
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+
+        with st.form("chat_form"):
+            prompt = st.text_input("Enter your message:")
+            uploaded_file = st.file_uploader("Upload an image (optional)", type=["jpg", "jpeg", "png"])
+            submit_button = st.form_submit_button("Send")
+            
+        if submit_button:
+            message_content = []
+            if prompt:
+                message_content.append({"type": "text", "text": prompt})
+            if uploaded_file is not None:
+                # Read the image data and encode it in base64
+                image_bytes = uploaded_file.read()
+                image_type = uploaded_file.type  # e.g., 'image/jpeg'
+                image_data = base64.b64encode(image_bytes).decode("utf-8")
+                # Include the image data in the message content
+                print( {"type": "image_url", "image_url": {"url": f"data:{image_type};base64,{image_data}"}})
+                message_content.append(
+                    {"type": "image_url", "image_url": {"url": f"data:{image_type};base64,{image_data}"}}
+                )
+
+            message = HumanMessage(content=message_content)
+            # Append user's message to session state
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                if prompt:
+                    st.markdown(prompt)
+                if uploaded_file is not None:
+                    st.image(uploaded_file)
+            # Get response from the LLM
+            response = st.session_state.chat.invoke([message])
+            # Append assistant's response to messages
+            st.session_state.messages.append({"role": "assistant", "content": response})
+            with st.chat_message("assistant"):
+                st.markdown(response)
 
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
